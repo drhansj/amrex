@@ -4,8 +4,9 @@ AMREX_HOME ?= ../../../
 DEBUG	= TRUE
 
 DIM	= 3
+# DIM	= 2
 
-COMP    = gnu
+# COMP    = gnu
 
 USE_MPI   = TRUE
 #USE_OMP   = TRUE

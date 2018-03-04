@@ -2,15 +2,16 @@ AMREX_HOME := ../../..
 
 PRECISION = DOUBLE
 
-DEBUG	= FALSE
+# DEBUG	= FALSE
 DEBUG	= TRUE
 
-DIM	= 3
+# DIM	= 3
 DIM	= 2
 
-COMP =g++
+# COMP =g++
 
-USE_MPI=FALSE
+# USE_MPI=FALSE
+USE_MPI=TRUE
 
 EBASE = main
 

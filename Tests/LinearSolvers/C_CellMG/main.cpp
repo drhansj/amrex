@@ -32,16 +32,16 @@ mfnorm_0_valid (const MultiFab& mf)
 
 static
 Real
-mfnorm_2_valid (const MultiFab& mf)
+mfnorm_1_valid (const MultiFab& mf)
 {
     Real r = 0;
     for ( MFIter cmfi(mf); cmfi.isValid(); ++cmfi )
     {
-        Real s = mf[cmfi].norm(cmfi.validbox(), 2, 0, mf[cmfi].nComp());
-        r += s*s;
+        Real s = mf[cmfi].norm(cmfi.validbox(), 1, 0, mf[cmfi].nComp());
+        r += ::fabs(s);
     }
     ParallelDescriptor::ReduceRealSum(r);
-    return ::sqrt(r);
+    return r;
 }
 
 static
@@ -543,7 +543,7 @@ main (int argc, char* argv[])
   //
   if ( dump_norm )
   {
-      double d1 = mfnorm_2_valid(soln);
+      double d1 = mfnorm_1_valid(soln);
       double d2 = mfnorm_0_valid(soln);
       if ( ParallelDescriptor::IOProcessor() )
       {
@@ -563,7 +563,7 @@ main (int argc, char* argv[])
           for (MFIter mfi(soln); mfi.isValid(); ++mfi)
               soln[mfi].plus(-mean);
 
-          double d1 = mfnorm_2_valid(soln);
+          double d1 = mfnorm_1_valid(soln);
           double d2 = mfnorm_0_valid(soln);
           if ( ParallelDescriptor::IOProcessor() )
           {
