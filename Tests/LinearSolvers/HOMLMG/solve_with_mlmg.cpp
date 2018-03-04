@@ -71,8 +71,12 @@ void solve_with_mlmg (const Vector<Geometry>& geom, int ref_ratio,
         mlabec.setMaxOrder(linop_maxorder);
         
         // BC
-        mlabec.setDomainBC({prob::bc_type,prob::bc_type,prob::bc_type},
-                           {prob::bc_type,prob::bc_type,prob::bc_type});
+        mlabec.setDomainBC({AMREX_D_DECL(prob::bc_type,
+                                         prob::bc_type,
+                                         prob::bc_type)},
+                           {AMREX_D_DECL(prob::bc_type,
+                                         prob::bc_type,
+                                         prob::bc_type)});
         for (int ilev = 0; ilev < nlevels; ++ilev) {
             mlabec.setLevelBC(ilev, psoln[ilev]);
         }
@@ -120,8 +124,12 @@ void solve_with_mlmg (const Vector<Geometry>& geom, int ref_ratio,
 
             mlabec.setMaxOrder(linop_maxorder);
 
-            mlabec.setDomainBC({prob::bc_type,prob::bc_type,prob::bc_type},
-                               {prob::bc_type,prob::bc_type,prob::bc_type});
+            mlabec.setDomainBC({AMREX_D_DECL(prob::bc_type,
+                                             prob::bc_type,
+                                             prob::bc_type)},
+                               {AMREX_D_DECL(prob::bc_type,
+                                             prob::bc_type,
+                                             prob::bc_type)});
             const int solver_level = 0; // 0 even though ilev may be > 0
             if (ilev > 0)
             {
