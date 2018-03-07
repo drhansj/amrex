@@ -3,8 +3,8 @@ AMREX_HOME ?= ../../../
 #DEBUG	= FALSE
 DEBUG	= TRUE
 
-DIM	= 3
-# DIM	= 2
+# DIM	= 3
+DIM	= 2
 
 # COMP    = gnu
 

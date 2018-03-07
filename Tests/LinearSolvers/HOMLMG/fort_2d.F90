@@ -20,7 +20,7 @@ subroutine fort_set_coef (lo, hi, exact, elo, ehi, alpha, alo, ahi, beta, blo, b
   pi = 4.d0 * atan(1.d0)
   tpi = 2.0d0 * pi
   fpi = 4.0d0 * pi
-  fac = 12.d0 * pi**2
+  fac = 8.d0 * pi**2
 
   xc = (prob_hi(1) + prob_lo(1))/2.d0
   yc = (prob_hi(2) + prob_lo(2))/2.d0
