@@ -22,6 +22,8 @@ void write_plotfile (const Vector<Geometry>& geom, int rr,
 namespace {
     void build_geometry_and_grids (Vector<Geometry>& geom, Vector<BoxArray>& grids);
     BoxArray readBoxList (const std::string& file, Box& domain);
+    void init_from_tiff2D (const std::string& file, 
+        const Vector<Geometry>& vecgeom, Vector<MultiFab>& vecmf);
 }
 
 namespace {
@@ -72,8 +74,9 @@ int main (int argc, char* argv[])
         for (auto& mf : soln) {
             mf.setVal(0.0); // initial guess
         }
-        
-        solve_with_mlmg (geom, ref_ratio, soln, alpha, beta, rhs, exact);
+        init_from_tiff2D("Particle_based0000.tif", geom, soln);
+
+        // solve_with_mlmg (geom, ref_ratio, soln, alpha, beta, rhs, exact);
 
         write_plotfile (geom, ref_ratio, soln, exact, alpha, beta, rhs);
     }
@@ -213,6 +216,72 @@ readBoxList (const std::string& file, Box& domain)
     }
 
     return BoxArray(retval);
+}
+
+#include <tiffio.h>
+
+void
+init_from_tiff2D (const std::string& file, const Vector<Geometry>& vecgeom, 
+    Vector<MultiFab>& vecmf)
+{
+  std::cout << "TIFF file " << file << '\n';
+  TIFF *tif=TIFFOpen(file.c_str(), "r");
+  uint32 width, height;
+  TIFFGetField(tif, TIFFTAG_IMAGEWIDTH, &width);
+  TIFFGetField(tif, TIFFTAG_IMAGELENGTH, &height);
+  std::cout << "Size: " << width << "w x " << height << "h\n";
+  uint32 npixels = width*height;
+  uint32* raster=(uint32 *) _TIFFmalloc(npixels *sizeof(uint32));
+  int ok = TIFFReadRGBAImage(tif, width, height, raster, 0);
+  std::cout << "Ok read?: " << ok << "\n";
+  
+  int refRatio = vecgeom[1].Domain().size()[0]/vecgeom[0].Domain().size()[0];
+  std::cout << "Ref ratio: " << refRatio << "\n";
+  const int levels = vecgeom.size();
+  for (int ilev = levels-1; ilev >= 0; --ilev)
+  {
+    std::cout << "Level " << ilev << "\n";
+    const Geometry& geom = vecgeom[ilev];
+    MultiFab& mf = vecmf[ilev];
+    Box domainBox = geom.Domain();
+    IntVect domainSize = domainBox.size();
+    IntVect origin = domainBox.smallEnd();
+    std::cout << "Domain size " << domainSize[0] << "w x " << domainSize[1] << "h\n";
+    std::cout << "MultiFab size " << mf.size() << "\n";
+
+    for (MFIter mfi(mf); mfi.isValid(); ++mfi)
+    {
+      const Box& bx = mfi.validbox();
+      IntVect rasterOffset = bx.smallEnd() - origin;
+      rasterOffset += IntVect(20,50); // FIXME - just shifting to middle
+      const Box fabBx = mf[mfi].box();
+      IntVect offset = (fabBx.size() - bx.size())/2; // ghost cells
+      int jstride = fabBx.size()[0];
+      IntVect size = bx.size();
+      for (int j=0; j < size[1]; j++)
+      {
+        for (int i=0; i < size[0]; i++)
+        {
+          int ix = i + rasterOffset[0] + (j + rasterOffset[1])* width;
+          // ix = floor(ix/(refRatio);
+          double* dataPtr = mf[mfi].dataPtr();
+
+          int ixdata = i + offset[0] + (j + offset[1])* jstride;
+          // if (i >= 20) break;
+          int val = raster[ix];
+          if (val == -1)
+            dataPtr[ixdata] = 1;
+          else
+            dataPtr[ixdata] = .1;
+
+          // std::cout << "(" << i << "," << j << ") = " << val << "\n";
+        }
+        // if (j >= 20) break;
+      }
+    }
+  }
+
+  _TIFFfree(raster);
 }
 
 }

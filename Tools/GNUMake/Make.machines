@@ -80,3 +80,8 @@ ifeq ($(findstring nrel, $(host_name)), nrel)
   which_site := nrel
   which_computer := anymachine
 endif
+
+ifeq ($(findstring cs-it-6967821, $(host_name)), cs-it-6967821)
+  which_site := macbook
+  which_computer := hansmacbook
+endif

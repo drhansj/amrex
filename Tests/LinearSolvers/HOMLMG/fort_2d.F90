@@ -38,9 +38,9 @@ subroutine fort_set_coef (lo, hi, exact, elo, ehi, alpha, alo, ahi, beta, blo, b
      end do
    end do
   
-   do j = lo(2), hi(2)
+   do j = lo(2)-1, hi(2)+1
       y = prob_lo(2) + dx(2) * (dble(j)+0.5d0)
-      do i = lo(1), hi(1)
+      do i = lo(1)-1, hi(1)+1
          x = prob_lo(1) + dx(1) * (dble(i)+0.5d0)
          
          r = sqrt((x-xc)**2 + (y-yc)**2)
